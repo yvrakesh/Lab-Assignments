@@ -1,2 +1,2 @@
 # myexpos
-A basic operating system as a part of OS lab
+A very basic operating system implemented as a part of OS lab
