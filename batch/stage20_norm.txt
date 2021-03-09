@@ -1,0 +1,6 @@
+load --module 7 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage20_boot_module.xsm
+load --module 1 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage20_mod1.xsm
+load --int=8 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage20_int8.xsm
+load --int=10 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage20_int10.xsm
+load --module 5 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage20_scheduler.xsm
+load --init /home/yachavenkatarakesh/myexpos/expl/expl_prgs/s20.xsm

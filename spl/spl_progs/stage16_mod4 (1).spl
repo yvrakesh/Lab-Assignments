@@ -1,0 +1,69 @@
+// Terminal Write Function
+
+if(R1 == 3) then
+	// Push the used Registers R1,R2,R3
+	multipush(R1,R2,R3);		
+	
+	// Call Aquire Terminal
+	R1 = 8;	
+
+	// Call resource manager module
+	call MOD_0;	
+	
+	multipop(R1,R2,R3);
+
+	print R3;	
+		
+	multipush(R1,R2);
+
+	// Call release terminal
+	R1 = 9;		
+
+	// Call resource manager module
+	call MOD_0;
+
+	multipop(R1,R2);
+	
+	return;
+endif;
+
+
+// Terminal Read Function
+if(R1 == 4) then
+	// Push the used registers R1,R2,R3
+	multipush(R1,R2,R3);					
+
+	// Call Aquire Terminal
+	R1 = 8;					
+	
+	// CAll resource manager module
+	call MOD_0;				
+
+	multipop(R1,R2,R3);
+	
+	read;
+	
+	breakpoint;
+	
+	[PROCESS_TABLE + 16 * R2 + 4] = WAIT_TERMINAL;	
+	
+	// Invoking context switch module
+	
+	// Push all the used registers till now
+	multipush(R1,R2,R3);
+
+	// Invoke scheduler
+	call MOD_5;
+
+	multipop(R1,R2,R3);
+
+	// Store Input Buffer in designated address
+	[[PTBR + 2*(R3 / 512)]*512 + R3%512] = [PROCESS_TABLE + R2 * 16 + 8]; 
+	
+	breakpoint;
+	
+	return;
+	
+endif;
+
+return;

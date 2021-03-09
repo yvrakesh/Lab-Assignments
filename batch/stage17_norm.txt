@@ -1,0 +1,5 @@
+load --module 1 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage17_mod1.xsm
+load --module 2 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage17_mod2.xsm
+load --int=9 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage17_int9.xsm
+load --module 7 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage17_boot_module.xsm
+load --init /home/yachavenkatarakesh/myexpos/expl/expl_prgs/stage17_exec.xsm

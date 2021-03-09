@@ -1,0 +1,58 @@
+alias PID R1;
+alias ProcessTable R2;
+
+PID = [SYSTEM_STATUS_TABLE + 1];
+ProcessTable = PROCESS_TABLE + PID*16;
+
+// Change MOD FLAG to 7
+[ProcessTable + 9] = 7;
+
+alias userSP R0;
+userSP = SP;
+
+
+// Save SP to UPTR field in process ID of that particular process
+[ProcessTable  + 13] = SP;	
+// Change SP to kernel stack pointer		
+SP = [ProcessTable + 11]*512 - 1;	        
+
+alias physicalPageNum R3;
+alias offset R4;
+physicalPageNum = [PTBR + 2*(userSP - 4)/512];
+offset = (userSP - 4)%512;
+
+alias fd R5;
+fd = [physicalPageNum*512 + offset];
+
+alias wordStoreAddress R6;
+
+if(fd != -1) then
+	[([PTBR + 2*(userSP - 1)/512]*512) + ((userSP - 1)%512)] = -1;	// Save -1 as return value
+
+else
+	// Since in privileged mode Address translation is disabled and hence we should explicitly do it
+	physicalPageNum = [PTBR + 2*((userSP - 3)/512)];
+	offset = (userSP - 3)%512;
+	wordStoreAddress = [physicalPageNum*512 + offset];
+	multipush(R0,R1,R2,R3,R4,R5,R6);
+
+	R1 = 4;
+	R2 = [SYSTEM_STATUS_TABLE + 1];
+	R3 = wordStoreAddress;
+
+	// Call Device Manager module
+	call MOD_4;
+
+	multipop(R0,R1,R2,R3,R4,R5,R6);
+
+	[[PTBR + 2*((userSP-1)/512)]*512 + ((userSP-1)%512)] = 0;
+
+endif;
+
+// Change MOD FLAG to 0 stating the process is completed and can switch back to unprivileged mode
+[ProcessTable + 9] = 0;
+// Change SP back to UPTR
+SP = userSP;
+
+
+ireturn;

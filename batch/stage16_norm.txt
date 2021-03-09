@@ -1,0 +1,12 @@
+load --library /home/yachavenkatarakesh/myexpos/expl/library.lib
+load --os /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage14_os_startup.xsm
+load --int=timer /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage14_timer.xsm
+load --int=console /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage16_con_int_handler.xsm
+load --int=6 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage16_int6.xsm
+load --int=7 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage15_int7.xsm
+load --int=10 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage14_int10.xsm
+load --module 0 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage15_mod0.xsm
+load --module 4 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage16_mod4.xsm
+load --module 5 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage14_scheduler_module.xsm
+load --module 7 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage16_boot_module.xsm
+load --init /home/yachavenkatarakesh/myexpos/expl/expl_prgs/gcd.xsm

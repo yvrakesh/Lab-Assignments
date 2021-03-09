@@ -1,0 +1,5 @@
+load --int=9 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage18_int9.xsm
+load --module 0 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage18_mod0.xsm
+load --module 4 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage18_mod4.xsm
+load --module 7 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage18_boot_module.xsm
+load --int=disk /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage18_disk_interrupt.xsm

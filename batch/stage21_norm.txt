@@ -1,0 +1,5 @@
+load --module 1 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage21_mod1.xsm
+load --module 7 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage21_boot_module.xsm
+load --int=11 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage21_int11.xsm
+load --int=15 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage21_int15.xsm
+load --init /home/yachavenkatarakesh/myexpos/expl/expl_prgs/s21.xsm

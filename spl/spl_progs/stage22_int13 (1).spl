@@ -1,0 +1,81 @@
+alias userSP R1;
+userSP = SP;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11]*512 - 1;
+R2 = [[PTBR + 2*((userSP - 5)/512)]*512 + (userSP - 5)%512];
+
+// System call number for Semget
+if(R2 == 17) then
+	// Set Modeflag to 17
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 17;
+	// Set default free entry index to -1
+	alias free_entry R3;
+	free_entry = -1;
+	// Last 16 are only allocated for perprocess resource table 
+	R4 = 496;
+	while (R4 < 512) do
+		if([[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11] * 512 + R4] == -1) then
+			free_entry = R4;
+			break;
+		endif;
+	// Each resource use 2 words of memory
+	R4 = R4 + 2;
+	endwhile;
+	
+	if(free_entry == -1) then
+		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+		[[PTBR + 2*((userSP-1)/512)]*512 + (userSP - 1)%512] = -1;
+		SP = userSP;
+		ireturn;
+	endif;
+	
+	backup;
+	// Function Number 6 for Acquire Semaphore
+	R1 = 6;
+	R2 = [SYSTEM_STATUS_TABLE + 1];
+	call MOD_0;
+	
+	if(R0 == -1) then
+		restore;
+		[[PTBR + 2*((userSP-1)/512)]*512 + (userSP - 1)%512] = -2;
+		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+		SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+		ireturn;
+	endif;
+	[[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + free_entry] = 1;
+	[[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + free_entry + 1] = R0;
+	restore;
+	[[PTBR + 2*((userSP - 1)/512)]*512 + (userSP - 1)%512] = (free_entry - 496)/2;
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+	SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+	ireturn;
+endif;
+
+// System call number for Semrelease
+if(R2 == 18) then
+	// Set Mode Flag to 18
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 18;
+	alias sem_description R4;
+	sem_description = [[PTBR + 2*((userSP - 4)/512)]*512 + (userSP - 4)%512];
+	if ( sem_description < 0 || sem_description > 7 || [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11] * 512 + (2*sem_description + 496)] != 1) then
+		[[PTBR + 2*((userSP - 1)/512)]*512 + (userSP - 1)%512] = -1;
+		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+		SP = userSP;
+		ireturn;
+	endif;
+	
+	backup;
+	// Function number 7 for Release Semaphore
+	R1 = 7;
+	R2 = [SYSTEM_STATUS_TABLE + 1];
+	R3 = [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 + (496 + 2*sem_description + 1)];
+	call MOD_0;
+	restore;
+	
+	[[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11] * 512 + 496 + 2*sem_description] = -1;
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+	[[PTBR + 2*((userSP - 1)/512)]*512 + (userSP - 1)%512] = 0;
+	SP = userSP;
+	ireturn;
+endif;
+		

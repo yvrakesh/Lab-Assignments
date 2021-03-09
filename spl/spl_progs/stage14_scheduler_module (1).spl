@@ -1,0 +1,70 @@
+alias currPID R0;
+alias curr_Process_Table R1;
+
+// Get Curr PID from System Status Table 
+currPID = [SYSTEM_STATUS_TABLE+1];
+//inline "PUSH BP";
+multipush(BP);
+
+// Get base address of present process in Process Table
+curr_Process_Table = PROCESS_TABLE + currPID*16;
+
+[curr_Process_Table + 12] = SP%512;
+[curr_Process_Table + 14] = PTBR;
+[curr_Process_Table + 15] = PTLR;
+
+alias i R2;
+alias newPID R3;
+alias j R5;
+alias new_Process_Table R4;
+
+// Iterate through succeeding Entries of Current Process to find a process in ready state or Create State
+// Note : Create State : Not scheduled before,  Ready State : Ready for execution
+
+i = currPID+1;
+newPID = 0;
+j = 0;
+
+
+while(j<16) do
+	new_Process_Table = PROCESS_TABLE + i*16;
+	if([new_Process_Table+4] == READY || [new_Process_Table+4] == CREATED) then
+		newPID = i;
+		break;
+	endif;
+	i = i + 1;
+	if(i == 16) then
+		i = 0;
+	endif;
+	j = j + 1;
+endwhile;
+
+// Get the base address point to the new Process 
+new_Process_Table = PROCESS_TABLE + newPID*16;
+
+// Set SP using User Area Page Number and Kernel Stack Pointer
+// UAPN*512 + Offset(i.e. KPTR)
+SP = [new_Process_Table+11]*512 + [new_Process_Table+12];
+
+// Set PTBR, PTLR using Process Table
+PTBR = [new_Process_Table+14];
+PTLR = [new_Process_Table+15];
+
+// Set new Process PID to System status table
+[SYSTEM_STATUS_TABLE + 1] = newPID;
+
+if([new_Process_Table+4] == CREATED) then
+	SP = [new_Process_Table + 13];
+	[new_Process_Table + 4] = RUNNING;
+	[new_Process_Table + 9] = 0;
+	ireturn;
+endif;
+
+[new_Process_Table + 4] = RUNNING;
+
+//restore the Base Pointer
+//inline "POP BP";
+
+multipop(BP);
+
+return;

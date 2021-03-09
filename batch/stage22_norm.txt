@@ -1,0 +1,12 @@
+load --module 0 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage22_mod0.xsm
+load --module 1 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage22_mod1.xsm
+load --module 7 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage22_boot_module.xsm
+load --int=8 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage22_int8.xsm
+load --int=13 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage22_int13.xsm
+load --int=14 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage22_int14.xsm
+load --module 5 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage20_scheduler.xsm
+load --int=timer /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage22_timer.xsm
+load --module 2 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage19_mod2.xsm
+load --module 7 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage22_boot_module.xsm
+load --int=15 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage22_int15.xsm
+load --module 0 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage22_mod0.xsm

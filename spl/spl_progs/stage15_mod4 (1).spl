@@ -1,0 +1,26 @@
+if (R1 == 3) then
+	// Push all the used registers
+	backup;
+	
+	// Function Number for Acquire Terminal Function
+	R1 = 8;
+	
+	call MOD_0;
+	
+	//If terminal Obtained
+	
+	restore;
+	
+	print R3;
+	
+	backup;
+	
+	// Function Number for Release Terminal Function
+	R1 = 9;
+	
+	call MOD_0;
+	
+	restore;
+	
+	return;
+endif;

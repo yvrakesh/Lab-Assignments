@@ -1,0 +1,56 @@
+// R1 has System Call Number for either Acquire Terminal or Release Terminal
+// R2 has the value of current PID
+// System call 8 for Acquire Terminal
+// System call 9 for Release Terminal
+if( R1 == 8 ) then
+	while([TERMINAL_STATUS_TABLE] == 1) do
+		[PROCESS_TABLE + R2*16 + 4] = WAIT_TERMINAL;
+		multipush(R1,R2);
+		
+		call MOD_5;
+		
+		multipop(R1,R2);
+	endwhile;
+	
+	[TERMINAL_STATUS_TABLE] = 1;
+	[TERMINAL_STATUS_TABLE + 1] = R2;
+	
+	return;
+endif;
+
+if( R1 == 9 ) then
+	if( R2 != [TERMINAL_STATUS_TABLE+1]) then
+		R0 = -1;
+		return;
+	endif;
+	
+	[TERMINAL_STATUS_TABLE] = 0;
+	
+	alias i R8;
+	i = 0;
+	while( i < 16 ) do
+		if([PROCESS_TABLE+i*16+4] == WAIT_TERMINAL) then
+			[PROCESS_TABLE+i*16+4] = READY;
+		endif;
+		i = i+1;
+	endwhile;
+	
+	R0 = 0;  // To know if the process correctly executed
+	return;
+endif;
+
+// R1 has System Call number for Acquire Disk
+// System call number 3 for Acquire Disk
+if( R1 == 3) then
+	while([DISK_STATUS_TABLE+0] == 1) do
+		[PROCESS_TABLE + R2*16 + 4] = WAIT_DISK;
+		backup;
+		call MOD_5;
+		restore;
+	endwhile;
+	
+	[DISK_STATUS_TABLE+0] = 1;
+	[DISK_STATUS_TABLE+4] = R2;
+	
+	return;
+endif;

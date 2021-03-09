@@ -1,0 +1,47 @@
+decl
+	int a[100];
+enddecl
+
+int main() {
+	decl
+		int temp1, temp2, temp3, n, i, j, temp, w;
+		str say1;
+	enddecl
+
+	begin
+		say1 = "Enter n value";
+		temp1 = exposcall("Write", -2, say1);
+		temp2 = exposcall("Read", -1, n);
+
+		say1 = "Enter the elements";
+		temp3 = exposcall("Write",-2,say1);
+		i = 0;
+		while(i < n) do
+			temp3 = exposcall("Read", -1, a[i]);
+			i = i+1;
+		endwhile;
+
+		i = 0;
+		while(i < n) do
+                j = i+1;
+                        while(j < n) do
+                                if(a[i] > a[j]) then
+                                        temp= a[i];
+                                        a[i] = a[j];
+                                        a[j] = temp;
+                                endif;
+                                j = j+1;
+                        endwhile;
+                i = i+1;
+                endwhile;
+                say1 = "Sorted elements";
+                temp1 = exposcall("Write",-2,say1);
+                i = 0;
+                while(i < n) do
+                        w = exposcall("Write", -2, a[i]);
+                        i = i+1;
+                endwhile;
+                
+                return 0;
+        end
+}

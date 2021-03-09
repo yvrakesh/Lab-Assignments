@@ -1,0 +1,164 @@
+// R1 has System Call Number for either Acquire Terminal or Release Terminal
+// R2 has the value of current PID
+// System call 8 for Acquire Terminal
+// System call 9 for Release Terminal
+if( R1 == 8 ) then
+	while([TERMINAL_STATUS_TABLE] == 1) do
+		[PROCESS_TABLE + R2*16 + 4] = WAIT_TERMINAL;
+		multipush(R1,R2);
+		
+		call MOD_5;
+		
+		multipop(R1,R2);
+	endwhile;
+	
+	[TERMINAL_STATUS_TABLE] = 1;
+	[TERMINAL_STATUS_TABLE + 1] = R2;
+	
+	return;
+endif;
+
+if( R1 == 9 ) then
+	if( R2 != [TERMINAL_STATUS_TABLE+1]) then
+		R0 = -1;
+		return;
+	endif;
+	
+	[TERMINAL_STATUS_TABLE] = 0;
+	
+	alias i R8;
+	i = 0;
+	while( i < 16 ) do
+		if([PROCESS_TABLE+i*16+4] == WAIT_TERMINAL) then
+			[PROCESS_TABLE+i*16+4] = READY;
+		endif;
+		i = i+1;
+	endwhile;
+	
+	R0 = 0;  // To know if the process correctly executed
+	return;
+endif;
+
+// R1 has System Call number for Acquire Disk
+// System call number 3 for Acquire Disk
+if( R1 == 3) then
+	while([DISK_STATUS_TABLE+0] == 1) do
+		[PROCESS_TABLE + R2*16 + 4] = WAIT_DISK;
+		backup;
+		call MOD_5;
+		restore;
+	endwhile;
+	
+	[DISK_STATUS_TABLE+0] = 1;
+	[DISK_STATUS_TABLE+4] = R2;
+	
+	return;
+endif;
+
+// Function number 6 for Acquire Semaphore
+if( R1 == 6) then
+	// Set free_entry as -1
+	R0 = -1;
+	R4 = 0;
+	while( R4<MAX_SEM_COUNT ) do
+		if([SEMAPHORE_TABLE + 4*R4 + 1] == 0) then
+			R0 = R4;
+			[SEMAPHORE_TABLE + 4*R4] = -1;
+			[SEMAPHORE_TABLE + 4*R4 + 1] = 1;
+			return;
+		endif;
+	R4 = R4 + 1;
+	endwhile;
+	return;
+endif;
+
+// Function Call Number for Release Semaphore is 7
+if( R1 == 7) then
+	if([SEMAPHORE_TABLE + 4*R3] == [SYSTEM_STATUS_TABLE + 1]) then
+		[SEMAPHORE_TABLE + 4*R3] = -1;
+		R4 = 0;
+		while( R4<16 ) do
+			if([PROCESS_TABLE + 16*R4 + 4] == WAIT_SEMAPHORE && [PROCESS_TABLE + 16*R4 + 5] == R3) then
+				[PROCESS_TABLE + 16*R4 + 4] = READY;
+			endif;
+		R4 = R4 + 1;
+		endwhile;
+	endif;
+	[SEMAPHORE_TABLE + 4*R3 + 1] = [SEMAPHORE_TABLE + 4*R3 + 1] - 1;
+	return;
+endif;
+
+// Function Call Number 4 for Acquire Inode 
+if ( R1 == 4) then
+	while ( [FILE_STATUS_TABLE + 4*R3 + 0] != -1)do
+		[PROCESS_TABLE + 16 * R2 + 4] = WAIT_FILE;
+		[PROCESS_TABLE + 16 * R2 + 5] = R3;
+		backup;
+		call MOD_5;
+		restore;
+	endwhile; 
+	if ([INODE_TABLE + 16*R3 + 1] == -1) then
+		R0 = -1;
+		return;
+	endif;
+	[FILE_STATUS_TABLE + 4*R3 + 0] = R2;
+	R0 = 0;
+	return;
+endif;
+
+// Function Call Number 5 for Release Inode
+if ( R1 == 5) then
+	if ( [FILE_STATUS_TABLE + 4 * R3 + 0] != R2) then
+		R0 = -1;
+		return;
+	endif;
+	[FILE_STATUS_TABLE + 4 * R3 + 0] = -1;
+	backup;
+	R4 = 0;
+	while ( R4 < 16) do
+		if ( [PROCESS_TABLE + 16 * R4 + 4] == WAIT_FILE && [PROCESS_TABLE + 16 * R4 + 5] == R3) then
+			[PROCESS_TABLE + 16 * R4 + 4] = READY;
+		endif;
+	R4 = R4 + 1;
+	endwhile;
+	restore;
+	R0 = 0;
+	return;
+endif;
+
+// Function Number 1 for Acquire Buffer
+if ( R1 == 1) then
+	// Buffer index is sem_id
+	R2 = [SYSTEM_STATUS_TABLE + 1];
+	while([BUFFER_TABLE + 4 * R3 + 2] != -1) do
+		[PROCESS_TABLE + 16 * R2 + 4] = WAIT_BUFFER;
+		[PROCESS_TABLE + 16 * R2 + 5] = R3;
+		backup;
+		call MOD_5;
+		restore;
+	endwhile;
+	[BUFFER_TABLE + 4 * R3 + 2] = R2;
+	return;
+endif;
+
+// Function Number 2 for Release Buffer
+if (R1 == 2) then
+	// Buffer id is sem_id
+	R2 = [SYSTEM_STATUS_TABLE + 1];
+	if ( [BUFFER_TABLE + 4 * R3 + 2] != R2) then
+		R0 = -1;
+		return;
+	endif;
+	[BUFFER_TABLE + 4 * R3 + 2] = -1;
+	
+	R5 = 0;
+	while ( R5 < 16) do
+		if([PROCESS_TABLE + 16 * R5 + 4] == WAIT_BUFFER && [PROCESS_TABLE + 16 * R5 + 5] == R3) then
+			[PROCESS_TABLE + 16 * R5 + 4] = READY;
+			[PROCESS_TABLE + 16 * R5 + 5] = -1;
+		endif;
+		R5 = R5 + 1;
+	endwhile;
+	R0 = 0;
+	return;
+endif;

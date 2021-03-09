@@ -1,0 +1,74 @@
+// SYSTEM_STATUS_TABLE + 1 will give the process id of current process. Here we assumed process id as index in process table. Hence this multiplied with 16 gives the current process tuple.
+// And adding 13 to it gives the user stack pointer and there we are storing the current stack pointer.
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+
+// Setting SP to UArea Page number * 512 - 1
+// User Area Page Number contains code section's base address of that process.
+SP = ([PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512) - 1;
+
+//Save the user context to the kernel stack using the Backup instruction.
+backup;
+
+// Obtain the Process id of currently executing process
+alias currentPID R0;
+currentPID = [SYSTEM_STATUS_TABLE+1];
+
+//The Process table entry of the current process can be computed as PROCESS_TABLE + currentPID*16
+alias process_table_entry R1;
+process_table_entry = PROCESS_TABLE + (currentPID * 16);
+
+//Note that we already know the page number(User Area Page Number) and in that we need to know Kernel Stack Pointer hence we need the offset for KPTR entry thus it's SP%512.
+
+[process_table_entry + 12] = SP % 512;
+[process_table_entry + 14] = PTBR;
+[process_table_entry + 15] = PTLR;
+[process_table_entry + 4] = READY;
+
+
+// Scheduling Algorithm to toggle between two processes
+alias newPID R2;
+if(currentPID == 0) then
+	newPID = 1;
+else
+	newPID = 0;
+endif;
+
+
+//Restore the SP, PTBR and PTLR values from the Process Table entry for the new process
+
+alias new_process_table R3;
+new_process_table = PROCESS_TABLE + newPID * 16;
+
+//Set back Kernel SP, PTBR , PTLR
+//[new_process_table + 12] will give offset, adding it to user area page number * 512 gives physical address.
+SP =  [new_process_table + 11] * 512 + [new_process_table + 12] ;
+PTBR = [new_process_table + 14];
+PTLR = [new_process_table + 15];
+
+
+//Set the PID field of the System Status Table as newPID.
+[SYSTEM_STATUS_TABLE + 1] = newPID;
+
+
+//Check if the newly found process is in CREATED state. If so, set SP to top of its user stack and return to user mode.
+//Else if it's in ready state then the process will have the associated saved user context
+//Here it's only the idle process that goes through created state since there are only two processes
+if([new_process_table + 4] == CREATED) then
+	[new_process_table + 4] = RUNNING;
+	SP = [new_process_table + 13];
+	breakpoint;
+	ireturn;
+endif;
+
+
+//Set the state of the newly found process as RUNNING.
+[new_process_table + 4] = RUNNING;
+
+
+//Restore the user context from the kernel stack and set SP to the user SP saved in Process Table, before returning to user mode
+restore;
+
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+
+breakpoint;
+ireturn;

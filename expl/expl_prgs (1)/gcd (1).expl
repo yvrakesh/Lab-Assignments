@@ -1,0 +1,27 @@
+int main() {
+        decl
+                int temp1, temp2, temp3, temp4, num1, num2;
+                str var;
+        enddecl
+        begin
+        	var = "Enter first num";
+        	temp3 = exposcall("Write",-2,var);
+ 		temp1 = exposcall("Read", -1, num1);
+		
+		var = "Enter second num";
+		temp4 = exposcall("Write",-2,var);
+		temp2 = exposcall("Read", -1, num2);
+		
+		while(num1 != num2) do
+			if (num1 > num2) then 
+				num1 = num1 - num2;
+			else
+				num2 = num2 - num1;
+			endif;
+		endwhile;
+		var = "GCD of two numbers";
+		temp4 = exposcall("Write",-2,var);
+		temp3 = exposcall("Write", -2, num1);
+                return 0;
+        end
+}

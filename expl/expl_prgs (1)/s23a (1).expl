@@ -1,0 +1,19 @@
+int main(){
+	decl
+		int i, temp;
+		str s,msg;
+	enddecl
+	begin
+		msg = "Enter file Name";
+		temp = exposcall("Write",-2,msg);
+		temp = exposcall("Read",-1,s);
+		msg = "Enter Permission";
+		temp = exposcall("Write",-2,msg);
+		temp = exposcall("Read",-1,i);
+		temp = exposcall("Create", s, i);
+		if(temp == 0) then
+			write("File Created");
+		endif;
+		return 0;
+	end
+}

@@ -1,0 +1,183 @@
+// System Call Number 1 for Create and 4 for Delete
+
+alias userSP R1;
+userSP = SP;
+
+R9 = [SYSTEM_STATUS_TABLE + 1];
+
+alias process_table R15;
+process_table = PROCESS_TABLE + 16*R9;
+
+[process_table + 13] = SP;
+SP = [process_table + 11]*512 - 1;
+
+PTBR = [process_table + 14];
+// This is System call number for either create or Delete
+R2 = [[PTBR + 2*((userSP - 5)/512)]*512 + (userSP - 5)%512];
+// This contains File Name 
+R3 = [[PTBR + 2*((userSP - 4)/512)]*512 + (userSP - 4)%512];
+// Return address
+R10 = [PTBR + 2*((userSP - 1)/512)]*512 + (userSP - 1)%512;
+
+
+// Arguments File Name, Permission
+// Return 0 if success or file name is already present and -1 if no free inode entry found
+if ( R2 == 1) then
+	[process_table + 9] = 1;
+	R4 = [[PTBR + 2*((userSP - 3)/512)]*512 + (userSP - 3)%512];
+	R5 = 0;
+	while(R5 < 60) do
+		if ([INODE_TABLE + 16 * R5 + 1] == R3) then
+			[process_table + 9] = 0;
+			[R10] = 0;
+			SP = userSP;
+			ireturn;
+		endif;
+	R5 = R5 + 1;
+	endwhile;
+	alias free_entry R6;
+	free_entry = -1;
+	R5 = 0;
+	while(R5 < 60) do
+		if( [INODE_TABLE + 16*R5 + 1] == -1) then
+			free_entry = R5;
+			break;
+		endif;
+	R5 = R5 + 1;
+	endwhile;
+	if ( free_entry == -1) then	
+		[R10] = -1;
+		[process_table + 9] = 0;
+		SP = [process_table + 13];
+		ireturn;
+	endif;
+	R5 = 8;
+	while(R5 < 12) do
+		[INODE_TABLE + free_entry * 16 + R5] = -1;
+		R5 = R5 + 1;
+	endwhile;
+	
+	R5 = INODE_TABLE + 16 * free_entry;
+	[R5 + 0] = DATA;
+	[R5 + 1] = R3;
+	[R5 + 2] = 0;
+	// User ID
+	[R5 + 3] = [process_table + 3];
+	[R5 + 4] = R4;
+	
+	
+	R5 = ROOT_FILE + free_entry * 8;
+	[R5 + 0] = R3;
+	[R5 + 1] = 0;
+	[R5 + 2] = DATA;
+	[R5 + 3] = [USER_TABLE + [process_table + 3] * 2 + 0];
+	[R5 + 4] = R4;
+	
+	[R10] = 0;
+	SP = userSP;
+	[process_table + 9] = 0;
+	ireturn;
+endif;
+
+
+
+// System Call 4 to delete a file
+if( R2 == 4) then
+	// Return 0 if Success/ File not exist and -1 if Permission denied and -2 if file is open and hence can't be deleted
+	[process_table + 9] = 4;
+	// Inode index
+	R4 = -1;
+	R5 = 0;
+	while( R5 < MAX_FILE_NUM) do
+		if( [INODE_TABLE + 16 * R5 + 1] == R3) then
+			R4 = R5;
+			break;
+		endif;
+	R5 = R5 + 1;
+	endwhile;
+	
+	if ( R4 == -1) then
+		[process_table + 9] = 0;
+		SP = userSP;
+		[R10] = 0;	
+		ireturn;
+	endif;
+	
+	R5 = INODE_TABLE + 16 * R4;
+	if ( [R5 + 0] != DATA) then
+		[process_table + 9] = 0;
+		[R10] = -1;
+		SP = userSP;
+		ireturn;
+	endif;
+	if ( [R5 + 4] == 0) then
+		if (([R5 + 3] != [process_table + 3]) && ([process_table + 3] != 1)) then
+			[process_table + 9] = 0;
+			SP = userSP;
+			[R10] = -1;
+			ireturn;
+		endif;
+	endif;
+	backup;
+	// Function Number 4 for Acquire Inode
+	R1 = 4;
+	R2 = R9;
+	R3 = R4;
+	call MOD_0;
+	restore;
+	
+	if ( [FILE_STATUS_TABLE + 4*R4 + 1] != -1) then
+		backup;
+		// Function Number 5 for Release Inode
+		R1 = 5;
+		R2 = R9;
+		R3 = R4;
+		call MOD_0;
+		restore;
+		[process_table + 9] = 0;
+		SP = userSP;
+		[R10] = -2;
+		ireturn;
+	endif;
+	
+	alias block_num R7;
+	R5 = 8;
+	R8 = INODE_TABLE + 16*R4; 
+	while(R5 < 12) do
+		block_num = [R8 + R5];
+		if ( block_num != -1) then
+			if ( ([BUFFER_TABLE + (block_num % 4)*4 + 0] == block_num ) && [BUFFER_TABLE + (block_num % 4) * 4 + 1] == 1) then
+				[BUFFER_TABLE + (block_num % 4) * 4 + 1] = 0;
+			endif;
+			backup;
+			R1 = RELEASE_BLOCK;
+			R2 = block_num;
+			R3 = R9;
+			call MOD_2;
+			restore;
+		endif;
+	R5 = R5 + 1;
+	endwhile;
+		
+	R5 = 0;
+	while( R5 < 16) do
+		[R8 + R5] = -1;
+		R5 = R5 + 1;
+	endwhile;
+	R5 = 0;
+	while ( R5<8 ) do
+		[ROOT_FILE + R4 * 8 + R5] = -1;
+		R5 = R5 + 1;
+	endwhile;
+	backup;
+	// Function Number 5 for Release Inode
+	R1 = 5;
+	R2 = R9;
+	R3 = R4;
+	call MOD_2;
+	restore;
+	SP = userSP;
+	[process_table + 9] = 0;
+	[R10] = 0;
+	ireturn;
+endif;

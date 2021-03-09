@@ -1,0 +1,70 @@
+// Load library code in mem page 63,64 from disk block 13,14
+loadi(63,13);
+loadi(64,14);
+
+// Load init code in mem page 65,66 from disk block 7,8
+loadi(65,7);
+loadi(66,8);
+
+// Load int 10 software interrupt in mem page 22,23 from disk block 35,36
+loadi(22,35);
+loadi(23,36);
+
+//Load exception handler in mem page 2,3 from disk block 15,16
+loadi(2,15);
+loadi(3,16);
+
+//Loading timer interrupt in mem page 4,5 from disk block 17,18
+loadi(4, 17);
+loadi(5, 18);
+
+//Load int 7 software interrupt in mem page 16,17 from disk block 29,30
+loadi(16,29);
+loadi(17,30);
+
+//Loadi instruction loads disk block to page memory
+PTBR = PAGE_TABLE_BASE;
+PTLR = 10;
+
+
+//Library ---> 2 pages
+[PTBR+0] = 63;
+[PTBR+1] = "0100";
+[PTBR+2] = 64;
+[PTBR+3] = "0100";
+
+//Heap ----->  2 pages
+[PTBR+4] = 78;
+[PTBR+5] = "0110";
+[PTBR+6] = 79;
+[PTBR+7] = "0110";
+
+//Code -----> 4 pages
+[PTBR+8] = 65;
+[PTBR+9] = "0100";
+[PTBR+10] = 66;
+[PTBR+11] = "0100";
+[PTBR+12] = -1;
+[PTBR+13] = "0000";
+[PTBR+14] = -1;
+[PTBR+15] = "0000";
+
+//Stack  ------> 2 pages
+[PTBR+16] = 76;
+[PTBR+17] = "0110";
+[PTBR+18] = 77;
+[PTBR+19] = "0110";
+
+SP = 8*512;
+[76*512] = [65 * 512 + 1];
+
+// Since User Area Page Number in the process table is and 80th Page is the first free page in memory it's used
+[PROCESS_TABLE + 11] = 80;
+
+// As we are using the first Process Table entry, the PID will be 0
+[PROCESS_TABLE + 1] = 0;
+
+// The second field of this table must be set to the PID of the process which is going to be run in user mode
+[SYSTEM_STATUS_TABLE + 1] = 0;
+
+ireturn; //IRET

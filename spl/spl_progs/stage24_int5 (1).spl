@@ -1,0 +1,94 @@
+alias userSP R1;
+userSP = SP;
+R9 = [SYSTEM_STATUS_TABLE + 1];
+alias file R12;
+alias process_table R10;
+process_table = PROCESS_TABLE + 16 * R9;
+PTBR = [process_table+ 14];
+R2 = [[PTBR + 2*((userSP-5)/512)]*512 + (userSP-5)%512];
+file = [[PTBR + 2*((userSP-4)/512)]*512 + (userSP-4)%512];
+
+[process_table+ 9] = R2;
+
+[process_table+ 13] = SP;
+SP = [process_table+ 11]*512 - 1;
+
+if(R2 == 2) then
+	alias p R4;
+	alias q R5;
+
+	p = 0;
+	q = [process_table+ 11]*512 + 496;
+
+	while(p < 8) do
+		if([q + p*2] == -1) then
+			break;
+		endif;
+	p = p + 1;
+	endwhile;
+
+	if(p == 8) then
+		[process_table+ 9] = 0;
+		SP = [process_table+ 13];
+		[[PTBR + 2*((SP-1)/512)]*512 + (SP-1)%512] = -3;
+		ireturn;
+	endif;
+
+	backup;
+	R1 = 3;
+	R2 = file; 
+	call MOD_3;
+	alias retvalue R0;
+	alias index R13;
+	index = retvalue;
+	if(retvalue < 0) then
+		[process_table+ 9] = 0;
+		SP = [process_table+ 13];
+		[[PTBR + 2*((SP-1)/512)]*512 + (SP-1)%512] = retvalue;
+		ireturn;
+	endif;
+	restore;
+
+	[q + p*2] = 0;
+	[q + p*2 + 1] = index;
+
+	SP = [process_table+ 13];
+	[[PTBR + 2*((SP-1)/512)]*512 + (SP-1)%512] = p;
+	[process_table+ 9] = 0;
+	ireturn; 
+endif;
+
+if(R2 == 3) then
+alias p R4;
+alias q R5;
+
+p = file;
+q = [process_table+ 11]*512 + 496;
+
+if(p>7 || p<0 || [q + p*2] != 0) then
+[process_table+ 9] = 0;
+SP = [process_table+ 13];
+[[PTBR + 2*((SP-1)/512)]*512 + (SP-1)%512] = -1;
+ireturn;
+endif;
+
+alias oftindex R6;
+oftindex = [q + p*2 + 1];
+
+multipush(R0,R1,R2,R3,R4,R5,R6);
+alias funnum R1;
+alias index R3;
+
+funnum = 4;
+index = oftindex; 
+call MOD_3;
+multipop(R0,R1,R2,R3,R4,R5,R6);
+
+[q + p*2] = -1;
+[q + p*2 + 1] = -1;
+
+[process_table+ 9] = 0;
+SP = [process_table+ 13];
+[[PTBR + 2*((SP-1)/512)]*512 + (SP-1)%512] = 0;
+ireturn;
+endif;

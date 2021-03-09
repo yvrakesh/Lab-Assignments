@@ -1,0 +1,68 @@
+//Load disk blocks 67,68 to mem pages 54,55
+loadi(54,67);
+loadi(55,68);
+
+// SP = (UserAreaPageNumber*512-1)
+SP = 82*512-1;
+
+
+call BOOT_MODULE;
+
+
+
+PTBR = PAGE_TABLE_BASE;
+PTLR = 10;
+
+//Setup Page Table for idle Process
+
+
+//Library   ------>  2 Pages
+[PTBR+0] = 63;
+[PTBR+1] = "0100";
+[PTBR+2] = 64;
+[PTBR+3] = "0100";
+
+//Heap     ------->   2 Pages
+[PTBR+4] = -1;
+[PTBR+5] = "0000";
+[PTBR+6] = -1;
+[PTBR+7] = "0000";
+
+//Code    -------->   4 Pages
+[PTBR+8] = 69;
+[PTBR+9] = "0100";
+[PTBR+10] = 70;
+[PTBR+11] = "0100";
+[PTBR+12] = -1;        
+[PTBR+13] = "0000";
+[PTBR+14] = -1;           
+[PTBR+15] = "0000";
+
+//Stack   ------->    2 Pages
+[PTBR+16] = 81;
+[PTBR+17] = "0110";
+[PTBR+18] = -1;        
+[PTBR+19] = "0000";
+
+// PROCESS_TABLE FOR PID = 0  (IDLE PROCESS)
+
+[PROCESS_TABLE + 1] = 0;		//	PID
+[PROCESS_TABLE + 4] = RUNNING;		//	STATE
+[PROCESS_TABLE + 11] = 82;		//	USER AREA PAGE NUMBER
+[PROCESS_TABLE + 12] = 0;		//	Kernel Stack Pointer (KPTR)
+[PROCESS_TABLE + 13] = 8*512;		//	User Stack Pointer (UPTR)
+[PROCESS_TABLE + 14] = PTBR;		//	PTBR
+[PROCESS_TABLE + 15] = 10;		//	PTLR
+
+// Value at 69*512+1 is the entry point of idle process code i.e. The location from which the idle code execution should start
+//That is given to mem page 81 because initially IP points to SP.
+[81*512] = [69*512 + 1];
+
+// As we are now in privileged mode there is no use of logical address
+// And here we are not giving any logical address instead we are just storing a number later after moving to unprivileged mode we use the address of that number.
+SP = 8*512;
+
+//Updating information of present process in system status table
+[SYSTEM_STATUS_TABLE+1] = 0;
+
+ireturn;
