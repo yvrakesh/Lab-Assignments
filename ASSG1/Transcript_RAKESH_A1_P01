@@ -1,0 +1,20 @@
+couldn't open "transcript": permission denied
+# Reading C:/intelFPGA_pro/19.2/modelsim_ase/tcl/vsim/pref.tcl
+# Loading project RAKESH_A1_P01
+# Compile of RAKESH_A1_P01.v was successful.
+# Compile of RAKESH_A1_P01_TB.v was successful.
+# 2 compiles, 0 failed with no errors.
+vsim -gui work.stim_not_gate
+# vsim -gui work.stim_not_gate 
+# Start time: 07:46:44 on Aug 22,2019
+# Loading work.stim_not_gate
+# Loading work.not_gate
+add wave sim:/stim_not_gate/*
+run
+# a = 0,b = 1
+# a = 1,b = 0
+set PrefMain(saveFile) Transcript_RAKESH_A1_P01
+# Transcript_RAKESH_A1_P01
+quit -sim
+# End time: 07:48:44 on Aug 22,2019, Elapsed time: 0:02:00
+# Errors: 0, Warnings: 0
