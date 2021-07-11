@@ -1,2 +1,2 @@
 # MyeXpOS
-A very basic operating system implemented as a part of OS lab
+Basic Multitasking operating system built on XSM Machine Architecture as a part of OS lab
