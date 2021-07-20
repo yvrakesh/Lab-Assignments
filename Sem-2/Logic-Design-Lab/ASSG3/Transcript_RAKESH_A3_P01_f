@@ -1,0 +1,32 @@
+couldn't open "transcript": permission denied
+# Reading C:/intelFPGA_pro/19.2/modelsim_ase/tcl/vsim/pref.tcl
+# Loading project RAKESH_B180427CS_All
+# Compile of RAKESH_A3_P01_f.v was successful.
+# Compile of RAKESH_A3_P01_f_TB.v was successful.
+# 2 compiles, 0 failed with no errors.
+vsim -gui work.stim_1_f
+# vsim -gui work.stim_1_f 
+# Start time: 21:21:18 on Oct 11,2019
+# Loading work.stim_1_f
+# Loading work.dflipflop_fall_syn
+# Loading work.and_gate
+# Loading work.dflipflop_fall
+# Loading work.dlatch
+add wave sim:/stim_1_f/*
+run -all
+# d=0,clk=0,q=x,q_bar=x,reset=0
+# d=1,clk=0,q=x,q_bar=x,reset=0
+# d=1,clk=1,q=x,q_bar=x,reset=0
+# d=1,clk=0,q=1,q_bar=0,reset=0
+# d=0,clk=0,q=1,q_bar=0,reset=0
+# d=0,clk=1,q=1,q_bar=0,reset=1
+# d=0,clk=0,q=0,q_bar=1,reset=0
+# d=1,clk=0,q=0,q_bar=1,reset=0
+# d=1,clk=1,q=0,q_bar=1,reset=0
+# d=0,clk=1,q=0,q_bar=1,reset=0
+# d=0,clk=0,q=0,q_bar=1,reset=0
+# d=0,clk=1,q=0,q_bar=1,reset=0
+# d=1,clk=1,q=0,q_bar=1,reset=0
+quit -sim
+# End time: 21:22:09 on Oct 11,2019, Elapsed time: 0:00:51
+# Errors: 0, Warnings: 0

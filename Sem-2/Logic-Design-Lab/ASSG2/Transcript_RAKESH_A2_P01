@@ -1,0 +1,21 @@
+couldn't open "transcript": permission denied
+# Reading C:/intelFPGA_pro/19.2/modelsim_ase/tcl/vsim/pref.tcl
+# Loading project x
+# Compile of RAKESH_A2_P01.v was successful.
+# Compile of RAKESH_A2_P01_TB.v was successful.
+# 2 compiles, 0 failed with no errors.
+vsim -gui work.stim_Half_Adder
+# vsim -gui work.stim_Half_Adder 
+# Start time: 19:23:46 on Sep 13,2019
+# Loading work.stim_Half_Adder
+# Loading work.Half_Adder
+add wave sim:/stim_Half_Adder/*
+run -all
+# a=x,b=x,s=x,c=x
+# a=0,b=0,s=0,c=0
+# a=0,b=1,s=1,c=0
+# a=1,b=0,s=1,c=0
+# a=1,b=1,s=0,c=1
+quit -sim
+# End time: 19:24:58 on Sep 13,2019, Elapsed time: 0:01:12
+# Errors: 0, Warnings: 0

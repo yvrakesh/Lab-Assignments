@@ -1,0 +1,45 @@
+couldn't open "transcript": permission denied
+# Reading C:/intelFPGA_pro/19.2/modelsim_ase/tcl/vsim/pref.tcl
+# Loading project RAKESH_B180427CS_All
+# Compile of RAKESH_A3_P09.v was successful.
+# Compile of RAKESH_A3_P09_TB.v was successful.
+# 2 compiles, 0 failed with no errors.
+# Load canceled
+# Compile of RAKESH_A3_P09.v was successful.
+# Compile of RAKESH_A3_P09_TB.v was successful.
+# 2 compiles, 0 failed with no errors.
+vsim -gui work.stim_9
+# vsim -gui work.stim_9 
+# Start time: 22:10:15 on Oct 11,2019
+# Loading work.stim_9
+# Loading work.pc
+# Loading work.fulladder_16
+# Loading work.fulladder_4
+# Loading work.fulladder
+# Loading work.halfadder
+# Loading work.xorgate
+# Loading work.notgate
+# Loading work.andgate
+# Loading work.orgate
+# Loading work.mux16
+# Loading work.reg_16
+# Loading work.mux
+# Loading work.bin_cell
+# Loading work.d_flipflop_r
+# Loading work.nandgate
+# Loading work.d_latch
+add wave sim:/stim_9/*
+run
+# OUT=xxxxxxxxxxxxxxxx
+# OUT=0000000000000000
+# OUT=0000000000000001
+# OUT=0000000000000010
+# OUT=0000000000000011
+# OUT=0000000000111111
+# OUT=0000000001000000
+# OUT=0000000001000001
+# OUT=0000000001000010
+# Break key hit
+quit -sim
+# End time: 22:10:54 on Oct 11,2019, Elapsed time: 0:00:39
+# Errors: 0, Warnings: 0
