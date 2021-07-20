@@ -1,0 +1,19 @@
+couldn't open "transcript": permission denied
+# Reading C:/intelFPGA_pro/19.2/modelsim_ase/tcl/vsim/pref.tcl
+# Loading project RAKESH_A1_P05
+
+# Compile of RAKESH_A1_P05.v was successful.
+# Compile of RAKESH_A1_P05_TB.v was successful.
+# 2 compiles, 0 failed with no errors.
+vsim -gui work.stim_xor_gate
+# vsim -gui work.stim_xor_gate 
+# Start time: 11:15:21 on Aug 23,2019
+# Loading work.stim_xor_gate
+# Loading work.xor_gate
+add wave sim:/stim_xor_gate/*
+run
+# a = x,b = x,c = x
+# a = 0,b = 0,c = 0
+# a = 0,b = 1,c = 1
+# a = 1,b = 0,c = 1
+# a = 1,b = 1,c = 0
