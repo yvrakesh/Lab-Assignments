@@ -1,0 +1,35 @@
+couldn't open "transcript": permission denied
+# Reading C:/intelFPGA_pro/19.2/modelsim_ase/tcl/vsim/pref.tcl
+# Loading project x
+# Compile of RAKESH_A2_P03.v was successful.
+# Compile of RAKESH_A2_P03_TB.v was successful.
+# 2 compiles, 0 failed with no errors.
+vsim -gui work.stim_Incrementor_4
+# vsim -gui work.stim_Incrementor_4 
+# Start time: 19:32:32 on Sep 13,2019
+# Loading work.stim_Incrementor_4
+# Loading work.Incrementor_4
+# Loading work.Half_Adder
+# ** Warning: (vsim-3015) C:/intelFPGA_pro/RAKESH_A2_P03.v(4): [PCDPC] - Port size (1) does not match connection size (32) for port 'b'. The port definition is at: C:/intelFPGA_pro/RAKESH_A2_P03.v(10).
+#    Time: 0 ps  Iteration: 0  Instance: /stim_Incrementor_4/Incrementor_4_1/Half_Addder_1 File: C:/intelFPGA_pro/RAKESH_A2_P03.v
+add wave sim:/stim_Incrementor_4/*
+run -all
+# a=0000,b=0001
+# a=0001,b=0010
+# a=0010,b=0011
+# a=0011,b=0100
+# a=0100,b=0101
+# a=0101,b=0110
+# a=0110,b=0111
+# a=0111,b=1000
+# a=1000,b=1001
+# a=1001,b=1010
+# a=1010,b=1011
+# a=1011,b=1100
+# a=1100,b=1101
+# a=1101,b=1110
+# a=1110,b=1111
+# a=1111,b=0000
+quit -sim
+# End time: 19:33:09 on Sep 13,2019, Elapsed time: 0:00:37
+# Errors: 0, Warnings: 1

@@ -1,0 +1,31 @@
+couldn't open "transcript": permission denied
+# Reading C:/intelFPGA_pro/19.2/modelsim_ase/tcl/vsim/pref.tcl
+# Loading project RAKESH_B180427CS_All
+# Compile of RAKESH_A3_P08.v was successful.
+# Compile of RAKESH_A3_P08_TB.v was successful.
+# 2 compiles, 0 failed with no errors.
+vsim -gui work.stim_8
+# vsim -gui work.stim_8 
+# Start time: 22:23:07 on Oct 11,2019
+# Loading work.stim_8
+# Loading work.RAM16384_16bit
+# Loading work.demux_4way
+# Loading work.demux_1x2
+# Loading work.and_gate
+# Loading work.RAM4096_16bit
+# Loading work.decoder_3x8
+# Loading work.demux_8way
+# Loading work.RAM512_16bit
+# Loading work.RAM64_16bit
+# Loading work.RAM8_16bit
+# Loading work.register_16bit
+# Loading work.binary_cell_1bit
+# Loading work.DFF_enable
+# Loading work.mux_2x1
+# Loading work.or_gate
+# Loading work.D_latch
+# Loading work.gated_s_r_latch
+# Loading work.buffer
+# Loading work.mux_8x1_16
+# Loading work.mux_4x1_16
+# Loading work.mux_2x1_16
