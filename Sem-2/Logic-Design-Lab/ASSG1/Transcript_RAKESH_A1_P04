@@ -1,0 +1,24 @@
+couldn't open "transcript": permission denied
+# reading C:/intelFPGA_pro/19.2/modelsim_ase/win32aloem/../modelsim.ini
+# Loading project RAKESH_A1_P04
+
+# End time: 06:54:53 on Aug 23,2019, Elapsed time: 0:01:35
+# Errors: 0, Warnings: 0
+# Compile of RAKESH_A1_P04.v was successful.
+# Compile of RAKESH_A1_P04_TB.v was successful.
+# 2 compiles, 0 failed with no errors.
+vsim -gui work.stim_nor_gate
+# vsim -gui work.stim_nor_gate 
+# Start time: 06:55:44 on Aug 23,2019
+# Loading work.stim_nor_gate
+# Loading work.nor_gate
+add wave sim:/stim_nor_gate/*
+run
+# a = x,b = x,c = x
+# a = 0,b = 0,c = 1
+# a = 0,b = 1,c = 0
+# a = 1,b = 0,c = 0
+# a = 1,b = 1,c = 0
+quit -sim
+# End time: 06:56:31 on Aug 23,2019, Elapsed time: 0:00:47
+# Errors: 0, Warnings: 0

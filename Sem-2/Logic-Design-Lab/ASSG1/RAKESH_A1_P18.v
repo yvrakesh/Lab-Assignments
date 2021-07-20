@@ -1,0 +1,24 @@
+module demux_1_8(o1,o2,o3,o4,o5,o6,o7,o8,i1,s1,s2,s3);
+output o1,o2,o3,o4,o5,o6,o7,o8;
+input i1,s1,s2,s3;
+wire p,q,r,p1,p2,p3,p4,p5,p6,p7,p8;
+nand(p,s1,s1);
+nand(q,s2,s2);
+nand(r,s3,s3);
+nand(p1,p,q,r,i1);
+nand(o1,p1,p1);
+nand(p2,p,q,s3,i1);
+nand(o2,p2,p2);
+nand(p3,p,s2,r,i1);
+nand(o3,p3,p3);
+nand(p4,p,s2,s3,i1);
+nand(o4,p4,p4);
+nand(p5,s1,q,r,i1);
+nand(o5,p5,p5);
+nand(p6,s1,q,s3,i1);
+nand(o6,p6,p6);
+nand(p7,s1,s2,r,i1);
+nand(o7,p7,p7);
+nand(p8,s1,s2,s3,i1);
+nand(o8,p8,p8);
+endmodule
