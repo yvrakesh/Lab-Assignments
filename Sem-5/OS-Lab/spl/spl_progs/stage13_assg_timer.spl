@@ -1,0 +1,70 @@
+breakpoint;
+
+[PROCESS_TABLE+([SYSTEM_STATUS_TABLE+1]*16)+13] = SP;
+
+SP = [PROCESS_TABLE+([SYSTEM_STATUS_TABLE+1]*16)+11]*512-1;
+
+backup;
+
+alias currPID R0;
+alias Process_Table_Entry R1;
+
+inline "PUSH BP";
+
+currPID = [SYSTEM_STATUS_TABLE+1];
+Process_Table_Entry = PROCESS_TABLE+currPID*16;
+[Process_Table_Entry+12] = SP % 512;
+[Process_Table_Entry+14] = PTBR;
+[Process_Table_Entry+15] = PTLR;
+[Process_Table_Entry+4] = READY;
+
+// Updated the details of current process in the Process table
+
+// Now change process to the next process in the queue
+
+alias newPID R2;
+alias new_Process_Table_Entry R3;
+
+// Since we only have 3 process we can use %3
+
+newPID = (currPID + 1)%3;
+
+while(1) do
+	if ([PROCESS_TABLE + newPID * 16 + 4] == READY || [PROCESS_TABLE + newPID*16+4] == CREATED) then
+		break;
+	endif;
+	newPID = newPID + 1;
+	if ( newPID == 16) then
+		newPID = 0;
+	endif;
+endwhile;
+
+
+// Get details of SP, PTBR, PTLR from the process table using new Process ID
+
+new_Process_Table_Entry=PROCESS_TABLE+newPID*16;
+SP=[new_Process_Table_Entry+11]*512+[new_Process_Table_Entry+12];
+PTBR=[new_Process_Table_Entry+14];
+PTLR=[new_Process_Table_Entry+15];
+
+// Update System status table with current process ID
+[SYSTEM_STATUS_TABLE+1]=newPID;
+
+
+if([new_Process_Table_Entry+4]==CREATED) then
+	[new_Process_Table_Entry+4]=RUNNING;
+	SP=[new_Process_Table_Entry+13];
+	[new_Process_Table_Entry + 9] = 0;  //Set Mode flag to 0
+	ireturn;
+endif;
+
+[new_Process_Table_Entry+4]=RUNNING;
+inline "POP BP";
+
+restore;
+
+SP=[PROCESS_TABLE+([SYSTEM_STATUS_TABLE+1]*16)+13];
+breakpoint;
+
+ireturn;
+

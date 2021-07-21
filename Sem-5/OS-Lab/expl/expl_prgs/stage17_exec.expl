@@ -1,0 +1,11 @@
+int main(){
+	decl 
+		int temp1,temp2;
+		str filename;
+	enddecl
+	begin
+		temp1 = exposcall("Read",-1,filename);
+		temp2 = exposcall("Exec",filename);
+		return 0;
+	end
+}

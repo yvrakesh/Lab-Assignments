@@ -1,0 +1,26 @@
+alias currPID R0;
+alias curr_Process_Table R1;
+alias i R2;
+
+//Set CurrPID from Process Table
+
+currPID = [SYSTEM_STATUS_TABLE + 1];
+curr_Process_Table = PROCESS_TABLE + currPID*16;
+[curr_Process_Table + 9] = 10;
+[curr_Process_Table + 13] = SP;
+[curr_Process_Table + 4] = TERMINATED;
+SP = [curr_Process_Table + 11]*512;
+
+i = 1;
+while( i < 16 ) do
+	if ([PROCESS_TABLE + i*16 + 4]!=TERMINATED) then
+		break;
+	endif;
+	i = i + 1;
+endwhile;
+
+if(i == 16) then
+	halt;
+else
+	call MOD_5;
+endif; 

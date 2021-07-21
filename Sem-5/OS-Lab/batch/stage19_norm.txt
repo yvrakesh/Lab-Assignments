@@ -1,0 +1,5 @@
+load --module 1 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage19_mod1.xsm
+load --module 2 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage19_mod2.xsm
+load --module 7 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage19_boot_module.xsm
+load --int=9 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage19_int9.xsm
+load --exhandler /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage19_exhandler.xsm

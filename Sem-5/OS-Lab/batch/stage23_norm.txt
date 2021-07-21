@@ -1,0 +1,5 @@
+load --int=4 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage23_int4.xsm
+load --int=15 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage23_int15.xsm
+load --module 0 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage23_mod0.xsm
+load --module 4 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage23_mod4.xsm
+load --module 7 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage23_boot_module.xsm

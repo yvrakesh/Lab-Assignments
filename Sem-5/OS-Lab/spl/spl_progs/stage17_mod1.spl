@@ -1,0 +1,65 @@
+// System call number 2 for Free user Page
+if(R1 == 2) then
+	backup;
+
+	R1 = 2;
+	R2 = [PROCESS_TABLE + R2*16 + 11];
+
+	call MOD_2;
+	restore;
+	return;
+endif;
+// System Call number 3 for Exit Process
+if(R1 == 3) then
+	backup;
+
+	R1 = 4;
+
+	call MOD_1;
+	
+	restore;
+	
+	backup;
+	
+	R1 = FREE_PAGE_TABLE;
+
+	call MOD_1;
+
+	restore;
+	[PROCESS_TABLE + R2*16 + 4] = TERMINATED;
+	return;
+endif;
+// System Call number 4 for Free Page Table
+if(R1 == 4) then
+	backup;
+	alias i R3;
+	i = 0;
+
+	while(i<2) do
+		[PAGE_TABLE_BASE + R2*20 + i*2] = -1;
+		[PAGE_TABLE_BASE + R2*20 + i*2 + 1] = "0000";
+		i = i+1;
+	endwhile;
+	
+	i = 2;
+	while(i < 10) do
+		if([PAGE_TABLE_BASE + R2*20 + 2*i] != -1) then
+			backup;
+			// Release Page
+			R1 = 2;
+			R2 = [PAGE_TABLE_BASE + 20*R2 + 2*i];
+			
+			call MOD_2;
+			
+			restore;
+			
+			[PAGE_TABLE_BASE + 20*R2 + 2*i] = -1;
+			[PAGE_TABLE_BASE + 20*R2 + 2*i+1] = "0000";
+		endif;
+		i = i+1;
+	endwhile;
+
+	restore;
+	
+	return ;
+endif;

@@ -1,0 +1,7 @@
+load --int=5 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage24_int5.xsm
+load --int=6 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage24_int6.xsm
+load --int=8 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage24_int8.xsm
+load --module 0 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage24_mod0.xsm
+load --module 1 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage24_mod1.xsm
+load --module 3 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage24_mod3.xsm
+load --module 7 /home/yachavenkatarakesh/myexpos/spl/spl_progs/stage24_boot_module.xsm

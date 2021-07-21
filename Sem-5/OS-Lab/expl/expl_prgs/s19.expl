@@ -1,0 +1,54 @@
+type
+	List{
+		int data;    
+        	List next;    
+    	}    
+endtype    
+    
+decl    
+	List head;     
+enddecl    
+    
+int main(){
+	decl
+		int x,temp1,i,n,t;
+		List p,q;
+		str say1;
+	enddecl
+   	
+   	begin
+   		x = initialize();
+   		head = null;
+   		
+   		say1 = "Enter size";
+   		temp1 = exposcall("Write",-2,say1);
+   		
+   		temp1 = exposcall("Read",-1,n);
+   		i = 0;
+   		say1 = "Enter nums";
+   		temp1 = exposcall("Write",-2,say1);
+   		while( i < n) do
+   			p = alloc();
+   			temp1 = exposcall("Read",-1,t);
+   			p.data = t;
+   			p.next = null;
+   			if(head == null) then
+   				head = p;
+   				q = p;
+   			else
+   				q.next = p;
+   				q = q.next;
+   			endif;
+   			i = i + 1;
+   		endwhile;
+   		say1 = "Linkedlist nums";
+   		temp1 = exposcall("Write",-2,say1);
+   		p = head;
+   		while( p != null) do
+   			temp1 = exposcall("Write",-2,p.data);
+   			p = p.next;
+   		endwhile;
+   		
+   		return 0;
+   	end   
+}

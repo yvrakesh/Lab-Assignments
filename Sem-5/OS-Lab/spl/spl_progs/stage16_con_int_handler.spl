@@ -1,0 +1,36 @@
+// Store SP value in UPTR field of currently running process
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+
+// Change SP to Kernel stack Pointer from (UserAreaPageNumber*512)-1
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+
+// Store all the user context of currently running process in kernel stack
+backup;
+
+alias reqPID R0;
+alias process_table_entry R1;
+// Get PID of the process using the terminal from Terminal status table
+reqPID = [TERMINAL_STATUS_TABLE + 1];
+process_table_entry = PROCESS_TABLE + 16 * reqPID;
+
+// Copy the value stored in P0 to the input buffer field of the process entry 
+[process_table_entry + 8] = P0;
+
+multipush(R0,R1);
+
+// Call Release terminal 
+R1 = 9;
+R2 = reqPID;
+
+// Call resource manager module
+call MOD_0;
+
+multipop(R0,R1);
+
+restore;
+
+// Change SP to UPTR field 
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+
+ireturn;

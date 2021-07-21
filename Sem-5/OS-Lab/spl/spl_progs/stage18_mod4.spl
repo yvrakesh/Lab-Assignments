@@ -1,0 +1,85 @@
+// Terminal Write Function
+if(R1 == 3) then
+	// Push the used Registers R1,R2,R3
+	multipush(R1,R2,R3);		
+	
+	// Call Aquire Terminal
+	R1 = 8;	
+
+	// Call resource manager module
+	call MOD_0;	
+	
+	multipop(R1,R2,R3);
+
+	print R3;	
+		
+	multipush(R1,R2);
+
+	// Call release terminal
+	R1 = 9;		
+
+	// Call resource manager module
+	call MOD_0;
+
+	multipop(R1,R2);
+	
+	return;
+endif;
+
+
+// Terminal Read Function
+if(R1 == 4) then
+	// Push the used registers R1,R2,R3
+	multipush(R1,R2,R3);					
+
+	// Call Aquire Terminal
+	R1 = 8;					
+	
+	// CAll resource manager module
+	call MOD_0;				
+
+	multipop(R1,R2,R3);
+	
+	read;
+	
+	
+	[PROCESS_TABLE + 16 * R2 + 4] = WAIT_TERMINAL;	
+	
+	// Invoking context switch module
+	
+	// Push all the used registers till now
+	multipush(R1,R2,R3);
+
+	// Invoke scheduler
+	call MOD_5;
+
+	multipop(R1,R2,R3);
+
+	// Store Input Buffer in designated address
+	[([PTBR + (2*(R3 / 512))]*512) + R3%512] = [PROCESS_TABLE + R2 * 16 + 8]; 
+	
+endif;
+
+// Disk Load Function
+if(R1 == 2) then
+	backup;
+	R1 = 3;
+	call MOD_0;
+	restore;
+	[DISK_STATUS_TABLE+0] = 1;
+	[DISK_STATUS_TABLE+1] = 0;
+	[DISK_STATUS_TABLE+2] = R3;
+	[DISK_STATUS_TABLE+3] = R4;
+	[DISK_STATUS_TABLE+4] = R2;
+	
+	load(R3,R4);
+	
+	[PROCESS_TABLE + R2*16 + 4] = WAIT_DISK;
+	backup;
+	
+	call MOD_5;
+	
+	restore;
+	
+endif;
+return;

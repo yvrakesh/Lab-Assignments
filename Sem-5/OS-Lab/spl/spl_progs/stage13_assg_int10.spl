@@ -1,0 +1,29 @@
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 4] = TERMINATED;
+
+alias currPID R0;
+
+currPID = [SYSTEM_STATUS_TABLE + 1];
+
+alias newPID R1;
+alias NewProcess R2;
+
+if(currPID == 1) then
+	newPID = 2;
+else
+	newPID = 1;
+endif;
+
+if(([PROCESS_TABLE + (16 * newPID) + 4]) == RUNNING) then
+	[SYSTEM_STATUS_TABLE + 1] = newPID;	
+	NewProcess = PROCESS_TABLE + (newPID * 16);
+	SP = ([NewProcess + 11] * 512) + [NewProcess + 12];
+	PTBR = [NewProcess + 14];
+	PTLR = [NewProcess + 15];
+	[NewProcess + 4] = RUNNING;
+	inline "POP BP";
+	restore;
+	SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+	ireturn;
+endif;
+
+halt;

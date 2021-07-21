@@ -1,0 +1,192 @@
+// Set Mode Flag
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1])*16 + 9] = 8;
+// 8 is System Call number for fork system call
+
+// Switch to Kernel Stack
+
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1])*16 + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1])*16 + 11] * 512 - 1;
+
+// PCB entry for child process to get new PID
+
+R1 = GET_PCB_ENTRY;
+call MOD_1;
+
+alias childPID R15;
+R15 = R0;
+
+if(R15 == -1) then
+	multipush(R1);
+	R1 = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1])*16 + 13];
+	// Store -1 as return value in the stack
+	[[PTBR + 2*((R1-1)/512)]*512 + (R1-1)%512] = -1;
+	// Set Mode flag to 0
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+	// Set SP to user stack
+	SP = R1;
+	multipop(R1);
+	ireturn;
+endif;
+
+// If Heap is not allocated
+
+if( [PTBR + 4] == -1) then
+	backup;
+	// Allocate first heap page
+	// Get Free Page check's if there is any free page available
+	// If then returns that page via R0
+	R1 = GET_FREE_PAGE;
+	call MOD_2;
+	[PTBR + 4] = R0;
+	[PTBR + 5] = "0110";
+	
+	// Allocate second heap page
+	R1 = GET_FREE_PAGE;
+	call MOD_2;
+	[PTBR + 6] = R0;
+	[PTBR + 7] = "0110";
+	
+	restore;
+endif;
+
+alias childPT R10;
+alias parentPT R11;
+alias PUserArea R8;
+alias childPageTable R12;
+alias CUserArea R9;
+
+parentPT = PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16;
+childPT = PROCESS_TABLE + childPID * 16;
+PUserArea = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE] * 16 + 11];
+childPageTable = PAGE_TABLE_BASE + childPID * 20;
+
+// Allocate Stack Pages for Child Process
+
+backup;
+// Allocate first stack page
+R1 = GET_FREE_PAGE;
+call MOD_2;
+[childPageTable + 16] = R0;
+[childPageTable + 17] = "0110";
+
+// Allocate second stack page
+R1 = GET_FREE_PAGE;
+call MOD_2;
+[childPageTable + 18] = R0;
+[childPageTable + 19] = "0110";
+
+restore;
+
+// Allocate User Area Page for child Process
+backup;
+R1 = GET_FREE_PAGE;
+call MOD_2;
+[PROCESS_TABLE + childPID*16 + 11] = R0;
+CUserArea = R0;
+restore;
+
+alias i R3;
+i = 0;
+
+// Copy UserID, Swap Flag, User Area Swap Status, Inode index, UPTR field
+while(i<16) do
+	if(i == 3 || i == 6 || i == 7 || i == 10 || i == 13) then
+		[PROCESS_TABLE + childPID * 16 + i] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + i];
+	endif;
+i = i + 1;
+endwhile;
+
+
+// Set Mode Flag to 0
+[PROCESS_TABLE + childPID * 16 + 9] = 0;
+// Set KPTR field to 0
+[PROCESS_TABLE + childPID * 16 + 12] = 0;
+// Set Tick to 0
+[PROCESS_TABLE + childPID * 16 + 0] = 0;
+
+// Set PID
+[PROCESS_TABLE + childPID * 16 + 1] = childPID;
+// Set PPID
+[PROCESS_TABLE + childPID * 16 + 2] = [SYSTEM_STATUS_TABLE + 1];
+// Change status of child process to created
+[PROCESS_TABLE + childPID * 16 + 4] = CREATED;
+
+// Copying Per process table from parent to the child
+
+backup;
+
+alias j R1;
+j = 496;
+
+while(j<512) do
+	[CUserArea * 512 + j] = [PUserArea * 512 + j];
+	j = j + 1;
+endwhile;
+
+restore;
+
+ // Copy per-process disk map table of the parent to the child
+ 
+ alias ParentDiskMapTable R13;
+ alias ChildDiskMapTable R14;
+ 
+ ParentDiskMapTable = DISK_MAP_TABLE + [SYSTEM_STATUS_TABLE + 1] * 10;
+ ChildDiskMapTable = DISK_MAP_TABLE + childPID * 10;
+ // Note that stack pages and user area page will not be swapped at the time it invokes fork system call
+ i = 2;
+ while ( i <= 9) do
+ 	[ChildDiskMapTable + i] = [ParentDiskMapTable + i];
+ 	i = i + 1;
+ endwhile;
+ 
+ i = 0;
+ while ( i < 16) do
+ 	[childPageTable + i] = [PAGE_TABLE_BASE + [SYSTEM_STATUS_TABLE + 1] * 20 + i];
+ 	if ( i%2 == 0) then
+ 		if( [PAGE_TABLE_BASE + [SYSTEM_STATUS_TABLE + 1] * 20 + i ] != -1) then
+ 			[MEMORY_FREE_LIST + [PAGE_TABLE_BASE + [SYSTEM_STATUS_TABLE + 1]*20 + i]] = [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + [SYSTEM_STATUS_TABLE + 1] * 20 + i]] + 1;
+ 		endif;
+ 	endif;
+ i = i + 1;
+ endwhile;
+ 
+ // Copy 1st stack page content from parent stack to child
+ alias page R6;
+ alias childPage R7;
+ page = [PAGE_TABLE_BASE + [SYSTEM_STATUS_TABLE + 1] * 20 + 16];
+ childPage = [PAGE_TABLE_BASE + childPID * 20 + 16];
+ 
+ i = 0;
+ while(i<512) do
+ 	[childPage * 512 + i] = [page * 512 + i];
+ 	i = i + 1;
+ endwhile;
+ 
+ // Copy 2nd stack page content from parent stack to child
+ page = [PAGE_TABLE_BASE + [SYSTEM_STATUS_TABLE + 1] * 20 + 18];
+ childPage = [PAGE_TABLE_BASE + childPID * 20 + 18];
+ i = 0;
+ while(i<512) do
+ 	[childPage * 512 + i] = [page * 512 + i];
+ 	i = i + 1;
+ endwhile;
+ 
+ // Store BP in top of Kernel stack of child's process
+ // This is used to initialize the BP register when it's first time scheduled
+ [[PROCESS_TABLE + childPID * 16 + 11] * 512] = BP;
+ 
+ alias Pret R13;
+ alias Cret R14;
+ 
+ Pret = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+ Cret = [PROCESS_TABLE + childPID * 16 + 13];
+ // Return childPID indicating success
+ [[PTBR + 2 * ((Pret - 1)/512)] * 512 + (Pret - 1)%512] = childPID;
+ // Return value for child process is 0
+ [[childPageTable + 2* ((Cret-1)/512)] * 512 + (Cret - 1)%512] = 0;
+ 
+ // Set SP to user stack
+ SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+ // Reset mode flag to 0
+ [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+ ireturn;

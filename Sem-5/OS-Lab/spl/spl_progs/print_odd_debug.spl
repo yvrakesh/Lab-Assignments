@@ -1,0 +1,8 @@
+alias num R0;
+num = 0;
+while( num <= 20) do
+	if( num%2 == 1) then
+		breakpoint;
+	endif;
+num = num+1;
+endwhile;

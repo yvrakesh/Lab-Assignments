@@ -1,0 +1,9 @@
+print("Kernel Switches");
+print([70*512 + 511]);
+print("Context Switches");
+print([70*512 + 510]);
+print("Disk Switches");
+print([70*512 + 509]);
+print("Mem Switches");
+print([70*512 + 508]);
+halt;

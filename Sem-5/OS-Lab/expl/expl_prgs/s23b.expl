@@ -1,0 +1,18 @@
+int main()
+{
+	decl
+		int temp;
+		string s,msg;
+	enddecl
+	begin
+		msg = "Enter file Name";
+		temp = exposcall("Write",-2,msg);
+		temp = exposcall("Read",-1,s);
+		temp = exposcall("Delete",s);
+		if(temp == 0) then
+			write("File Deleted");
+		endif;
+		temp = exposcall("Exit");
+		return 0;
+	end
+}

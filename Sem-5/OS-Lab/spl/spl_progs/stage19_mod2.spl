@@ -1,0 +1,105 @@
+// System call number 1 for Get Free Page 
+if(R1 == GET_FREE_PAGE) then
+	backup;
+	[70*512 + 508] = [70*512 + 508] + 1;
+	// INCREMENT THE WAIT MEMORY COUNT
+	[SYSTEM_STATUS_TABLE+3] = [SYSTEM_STATUS_TABLE+3] + 1;
+
+	while([SYSTEM_STATUS_TABLE+2] == 0) do
+		[PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1]*16 + 4] = WAIT_MEM;
+		backup;
+		call MOD_5; 	// SCHEDULER
+		restore; 
+	endwhile;
+	
+	// DECREASING THE MEM_FREE_COUNT
+	[SYSTEM_STATUS_TABLE+3] = [SYSTEM_STATUS_TABLE+3]-1;
+	
+	// DECREASING THE WAIT_MEM_COUNT
+	[SYSTEM_STATUS_TABLE+2] = [SYSTEM_STATUS_TABLE+2]-1;
+
+	restore;
+
+	//find a free page using memory free list
+	// MAX_MEM_PAGE = 128
+
+	alias i R0;
+	i = 76;
+	while(i<MAX_MEM_PAGE) do
+		if([MEMORY_FREE_LIST+i]==0) then
+			[MEMORY_FREE_LIST+i] = 1;
+			break;
+		endif;
+		i = i + 1;
+	endwhile;
+	return;
+
+endif;
+
+// System Call number for 4 release page
+if(R1 == RELEASE_PAGE) then
+	backup;
+		
+	alias page_num R2;
+	[MEMORY_FREE_LIST + page_num] = [MEMORY_FREE_LIST + page_num] - 1;
+	
+	// Check if this page is free
+	if([MEMORY_FREE_LIST + page_num] == 0) then
+		// Increment the mem free count	
+		[SYSTEM_STATUS_TABLE+2] = [SYSTEM_STATUS_TABLE+2]+1;
+	endif;
+	
+	//update the status of processes waiting for memory
+	alias i R3;
+	i = 0;
+	
+	while(i<16) do
+		if([PROCESS_TABLE+16*i+4] == WAIT_MEM) then
+			[PROCESS_TABLE+16*i+4] = READY;
+		endif;
+		i = i + 1;
+	endwhile;
+
+	restore;		
+	return;
+endif;
+
+// Function number 5 for Get code Page
+if(R1 == GET_CODE_PAGE) then
+	// R2 contains block number
+	alias i R3;
+	alias pageNum R0;
+	breakpoint;
+	i = 0;
+	while(i<16) do
+		R4 = 4;
+		while(R4 < 8) do
+			if([DISK_MAP_TABLE + 10*R3 + R4] == R2 && [PAGE_TABLE_BASE + 20 * i + 2*R4] != -1) then
+				pageNum = [PAGE_TABLE_BASE + 20*i + 2*R4];
+				[MEMORY_FREE_LIST + pageNum] = [MEMORY_FREE_LIST + pageNum] + 1;
+				return;
+			endif;
+		R4 = R4 + 1;
+		endwhile;
+	i = i+1;
+	endwhile;
+	
+	// If there is no free page present at moment
+	R1 = GET_FREE_PAGE;
+	call MOD_2;
+	backup;
+	R1 = DISK_LOAD;
+	R4 = R2;
+	R2 = [SYSTEM_STATUS_TABLE + 1];
+	R3 = pageNum;
+	
+	call MOD_4;
+	breakpoint;
+	restore;
+	return;
+endif;
+
+if(R1 == RELEASE_BLOCK) then
+	[DISK_FREE_LIST + R2] = [DISK_FREE_LIST + R2] - 1;
+	return;
+endif;

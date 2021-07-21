@@ -1,0 +1,25 @@
+// User Stack Pointer of current running process is saved (UPTR)
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1]*16) + 13] = SP;
+[70*512 + 511] = [70*512 + 511] + 1;
+// Set SP to the beginning of User Area Page number
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1]*16) + 11]*512 - 1;
+
+//Save content of all registers of current running process
+backup;
+
+//Currently Running Process is changed from running state to ready i.e. added to queue for further execution
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 4] = READY;
+
+//Scheduler Module is called
+call MOD_5;
+
+//Restore contents of new Process
+restore;
+
+//Set SP to the beginning of user stack of new Process
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1]*16) + 13];
+
+//Mode flag is set to 0
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+
+ireturn;
